@@ -1,0 +1,105 @@
+﻿@model Buycars.ViewModels.ProductDetailsModel
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 style="padding-top:50px;">
+    Details about @Model.Product.Name
+</h2>
+<small>Posted on @Model.Product.DateAdded</small>
+<p>Posted by @Model.Product.IdentityUser.UserName</p>
+
+
+
+@if (ViewBag.CurrentUserId == Model.Product.IdentityUserId)
+{
+    @Html.ActionLink("Edit", "Edit", "Products", new { id = Model.Product.Id }, new { @class = "btn btn-warning", @style="padding-left:25px;padding-right:25px;" })@:&nbsp;
+
+    @Html.ActionLink("Delete", "DeleteProduct", "Products" ,new { id = Model.Product.Id },
+     new
+         {
+             @class = "btn btn-danger",
+             onclick = string.Format("return confirm('Are you sure ?');")
+         })
+}
+
+<hr />
+
+
+<div class="row">
+
+    <div class="col-md-6">
+        @{
+            var base64 = Convert.ToBase64String(Model.Product.Image);
+            var imgsrc = string.Format("data:image/gif;base64,{0}", base64);
+            <img src='@imgsrc' style="width:550px; height:300px;margin-bottom:20px;" />
+        }
+    </div>
+
+    <div class="col-md-offset-7">
+        <p class="font-size-20">Car Name: @Model.Product.Name</p>
+        <p class="font-size-20">Car Brand: @Model.Product.Brand</p>
+        <p class="font-size-20">Fabrication Year: @Model.Product.Year</p>
+        <p class="font-size-20">Car Price: @Model.Product.Price.00$</p>
+        <p style="margin-top:100px;" for="description">Description</p>
+        <textarea name="description" disabled>@Model.Product.Description</textarea>
+    </div>
+
+</div>
+
+<hr />
+
+<h3>Review Area</h3>
+
+
+
+
+@using (Html.BeginForm("Save", "Reviews"))
+{
+    <div class="form-group" style="padding-top:20px;">
+        @Html.LabelFor(m => m.Review.Body)
+        @Html.TextAreaFor(m => m.Review.Body, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Review.Body)
+
+
+        <input type="hidden" name="ProductId" value="@Model.Product.Id" />
+
+        <button style="margin-top:10px;" class="btn btn-primary">Add Review</button>
+
+
+    </div>
+}
+
+
+<div class="reviews">
+
+    <hr />
+
+    <div class="row">
+        @foreach (var item in Model.Reviews)
+        {
+            <div class="col-sm-3">
+                <p style="border-right: 1px solid rgba(128, 128, 128, 0.21);">Posted by @item.IdentityUser.UserName</p>
+            </div>
+            <div class="col-md-offset-2">
+                <p>@item.Body</p>
+            </div>
+
+            <hr />
+        }
+
+    </div>
+
+
+</div>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+

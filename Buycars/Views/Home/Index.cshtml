@@ -1,0 +1,171 @@
+﻿
+@using PagedList.Mvc;
+
+@model Buycars.ViewModels.HomeViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+
+@using (Html.BeginForm("SearchProduct", "Home"))
+{
+    <input id="searchName" name="searchName" placeholder="Search..." class="form-control" style="float:right; margin-top:100px; margin-left:20px;" type="search" />
+    <i style="float:right;margin-top:100px; " class="fa fa-search fa-2x" aria-hidden="true"></i>
+}
+
+<h1 style="padding-top:50px;">All Cars</h1>
+
+@using (Html.BeginForm("SortProducts", "Home"))
+{
+
+    @Html.DropDownList("SortType", new List<SelectListItem>
+     {
+        new SelectListItem{ Text="After Popularity", Value = "1" },
+        new SelectListItem{ Text="Price Ascending", Value = "2" },
+        new SelectListItem{ Text="Price Descending", Value = "3" },
+        new SelectListItem{ Text="Newest", Value = "4" }
+     }, "Sort After")
+
+
+<div class="form-group">
+
+    <input style="margin-top:20px;" type="submit" class="btn btn-primary font-size-13" value="Search Now" />
+
+</div>
+
+}
+
+
+
+
+
+<style>
+    .overflow {
+        overflow: visible;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="row">
+
+
+    <div class="overflow" style="float:left;padding-top:70px;">
+
+
+
+        @using (Html.BeginForm("FilterProducts", "Home"))
+        {
+
+
+
+            <p>Sort after Brand:</p>
+
+
+            for (int i = 0; i < Model.AllProducts.Count; i++)
+            {
+
+                @Html.CheckBoxFor(m => m.AllProducts[i].isSelected)
+                @Model.AllProducts[i].Brand@:<br />
+                @Html.HiddenFor(m => m.AllProducts[i].Id)
+                @Html.HiddenFor(m => m.AllProducts[i].Brand)
+            }
+
+
+            <p style="padding-top:20px;">Sorft after Price</p>
+            <input value="true" name="Under2000" class="form-check-input" type="checkbox"> @:0 - 2000<br />
+            <input value="true" name="Under4000" class="form-check-input" type="checkbox"> @:2000 - 4000<br />
+            <input value="true" name="After4000" class="form-check-input" type="checkbox"> @:4000 +<br />
+
+
+            <p style="padding-top:20px;">Sort after Stock:</p>
+            <input value="true" name="inStock" class="form-check-input" type="checkbox"> @:In Stock<br />
+
+            <input style="margin-top:20px;" type="submit" class="btn btn-primary font-size-13" value="Search Now" />
+
+        }
+
+    </div>
+
+    <div class="col-lg-2">
+
+        <div class="grid-container">
+
+            @foreach (var item in Model.Products)
+            {
+
+                var k = 0;
+
+            <div class="grid-item" style="border:1px solid rgba(128, 128, 128, 0.21); margin-left:30px; margin-top:30px;">
+
+                @{
+                    var base64 = Convert.ToBase64String(item.Image);
+                    var imgsrc = string.Format("data:image/gif;base64,{0}", base64);
+                    <img src='@imgsrc' style="width:350px; height:200px;margin-bottom:20px;" />
+                }
+                <hr />
+
+
+                <p class="font-size-20">Car Name: @item.Name</p>
+                <p class="font-size-20">Car Price: @item.Price.00$</p>
+
+
+                @if (item.inStock == true)
+                {
+
+
+
+                    foreach (var cart in Model.CartProducts)
+                    {
+
+
+
+                        if (item.Name == cart.Name)
+                        {
+                            k++;
+                        }
+                    }
+
+                    if (k > 0)
+                    {
+                        <button style="padding: 10px; padding-left: 25px; padding-right: 25px;" disabled class="btn btn-success">In Cart</button>
+                    }
+                    else
+                    {
+
+                        if (Request.IsAuthenticated)
+                        {
+                            @Html.ActionLink("Add to Cart", "Save", "CartProducts", new { id = item.Id }, new { @class = "btn btn-danger", @style = "padding:10px;" })
+                        }
+
+
+                    }
+
+                }
+                else
+                {
+                    <button style="padding: 10px;" disabled class="btn btn-warning">Not In Stock</button>
+                }
+
+
+
+                @Html.ActionLink("Details", "Details", "Products", new { id = item.Id }, new { @class = "btn btn-info", @style = "padding:10px;padding-left:25px;padding-right:25px;" })
+
+            </div>
+            }
+
+
+        </div>
+
+    </div>
+</div>
+
+@Html.PagedListPager(Model.Products, page => Url.Action("Index", new { page }),
+
+ new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true })
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}

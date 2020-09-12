@@ -1,0 +1,83 @@
+﻿@model IEnumerable<Buycars.Models.CartProduct>
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    #numberProd, #orderButton {
+        display: inline-block;
+    }
+</style>
+
+<h2 style="padding-top:50px;">Your Cart</h2>&nbsp;
+
+
+<div class="row">
+
+    @foreach (var item in Model)
+    {
+
+        <hr />
+
+        <div class="col-md-5">
+            @{
+                var base64 = Convert.ToBase64String(item.Image);
+                var imgsrc = string.Format("data:image/gif;base64,{0}", base64);
+                <img src='@imgsrc' style="width:350px; height:200px;margin-bottom:20px;" />
+            }
+
+
+
+        </div>
+
+        <div class="col-md-offset-5" style="padding-bottom:30px;">
+            <p class="font-size-20">Car Name: @item.Name</p>
+            <p class="font-size-20">Fabrication Year: @item.Year</p>
+            <p id="price-prod" value="@item.Price" data-id="@item.Id" name="Price" class="font-size-20">Car Price: @item.Price.00$</p>
+            <p style="margin-top:10px;" for="description">Description</p>
+            <textarea name="description" disabled>@item.Description</textarea>
+
+        </div>
+
+
+
+        @Html.ActionLink("Remove From Cart", "DeleteProduct", "CartProducts", new { id = item.Id },
+         new
+         {
+             @class = "btn btn-danger",
+             onclick = string.Format("return confirm('Are you sure?');"),
+             @style = "margin-left:20px;",
+             @id = "removeButton"
+         })
+
+
+        using (Html.BeginForm("Save", "Orders"))
+        {
+
+            <div class="row">
+
+
+                <div class="col-md-2">
+
+                    <p style="margin-top:10px;margin-left:20px;">Number of Cars</p>
+                    <input name="numberProd" style="margin-left: 20px; width:100px; padding:10px;" type="number" class="form-control" value="1" />
+
+                    <input type="hidden" value="@item.Id" name="productId" />
+                </div>
+
+                <div class="col-md-offset-1">
+                    <button style="margin-top: 37px;" class="btn btn-success">Buy Now</button>
+                </div>
+
+            </div>
+
+        }
+
+    }
+
+</div>
+
